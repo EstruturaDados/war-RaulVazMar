@@ -1,0 +1,102 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+
+typedef struct {
+    char nome[30];
+    char cor[15];
+    int tropas;
+} Territorio;  // Cuidado com Minuscula e Maiuscula pois da erro de sintaxe depois.
+
+void exibirMapa(Territorio *mapa, int n) {
+    printf("\n--- MAPA DE TERRITÓRIOS ---\n");
+    for (int i = 0; i < n; i++) {
+        printf("[%d] %s | Cor: %s | Tropas: %d\n",
+               i, mapa[i].nome, mapa[i].cor, mapa[i].tropas);
+    }
+}
+     // Não mexer com a quantidade de dados. 
+     
+void atacar(Territorio *atacante, Territorio *defensor) {
+    int dadoA = (rand() % 6) + 1;
+    int dadoD = (rand() % 6) + 1;
+
+    printf("\nDado do atacante (%s): %d", atacante->nome, dadoA);
+    printf("\nDado do defensor  (%s): %d\n", defensor->nome, dadoD);
+
+    if (dadoA > dadoD) {
+        printf("➡ O País Atacante ➡ venceu!! \n");
+
+        defensor->tropas = defensor->tropas - 1;
+        if (defensor->tropas <= 0) {
+            printf("Território conquistadissimo!\n");
+            strcpy(defensor->cor, atacante->cor);
+            defensor->tropas = 1;
+            atacante->tropas -= 1;
+        }
+    } else {
+        printf("➡ Defensor venceu! O País Atacante perdeu 1  Batalhão ! ! !.\n");
+        atacante->tropas -= 1;
+        if (atacante->tropas < 0) atacante->tropas = 0;
+    }
+}
+
+int main() {
+    srand(time(NULL));
+
+    int n;
+    printf("Quantidade de territórios na Partida: ");
+    scanf("%d", &n);
+
+    Territorio *mapa = malloc(n * sizeof(Territorio));
+
+    for (int i = 0; i < n; i++) {
+        printf("\n~~~~ Cadastro do Território %d ~~~~\n", i);
+        printf("Nome do País: ");
+        scanf("%s", mapa[i].nome);
+        printf("Cor: ");
+        scanf("%s", mapa[i].cor);
+        printf("Batalhões: ");
+        scanf("%d", &mapa[i].tropas);
+    }
+
+    int opcao = 0;
+
+    while (opcao != 3) {
+        printf("\n1 - Exibir Mapa\n2 - Atacarrr!! \n3 - Encerrar ou SAIR \nEscolha: ");
+        scanf("%d", &opcao);
+
+        if (opcao == 1) {
+            exibirMapa(mapa, n);
+        }
+
+        else if (opcao == 2) {
+            int a, d;
+            printf("Índice do atacante: ");
+            scanf("%d", &a);
+            printf("Índice do defensor: ");
+            scanf("%d", &d);
+
+            if (a == d) {
+                printf("Tá Doidão?? Não pode atacar a si mesmo.\n");
+                continue;
+            }
+
+            if (strcmp(mapa[a].cor, mapa[d].cor) == 0) {
+                printf("Territórios da mesma cor não podem se atacar. Nada de Trairas\n");
+                continue;
+            }
+
+            if (mapa[a].tropas <= 0) {
+                printf("Atacante sem tropas! Perdeu por W.O. \n");
+                continue;
+            }
+
+            atacar(&mapa[a], &mapa[d]);
+        }
+    }
+
+    free(mapa);
+    return 0;
+}
